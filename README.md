@@ -10,6 +10,12 @@
 
 这部分内容先做完，不用急着读参考文献，我们把手头内容写完了再去讨论可行模型。
 
+## 其他文档
+
+题干：https://tongyx361.notion.site/SM-a29a6c05a68b47c2815c861c6c8a1dea
+
+数据：https://cloud.tsinghua.edu.cn/d/33ac858407044d48aced/
+
 ### 参考
 
 1. 涉及两个问题：识别不同类型的神经元发放，以及提取时空特征进行差异性识别；
@@ -22,3 +28,8 @@
 
 -----
 
+1.  Histaminergic neuron system in the brain: distribution and possible functions
+2. Distribution of orexin neurons in the adult rat brain
+3. Distribution of cholinergic neurons in rat brain: demonstrated by the immunocytochemical localization of choline acetyltransferase
+
+第一个问题的 neuron distribution 的 可能会有帮助 hhh
