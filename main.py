@@ -1,4 +1,4 @@
-from data_prepare.dataloader import DataLoader 
+from data_prepare.dataloader import DataLoader
 
 def main():
     data = DataLoader()

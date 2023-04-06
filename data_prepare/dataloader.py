@@ -6,18 +6,23 @@ import pandas as pd
 
 class DataLoader:
     '''
-    Function: 
+    Function:
         Load data from ./dataset
     Note:
         N represents the number of neural cells, M represents the number of records at different times
     Elements:
         global_C(N, M): changes of calcium signals(0.1 seconds between adjacent elements)
+            钙信号强度
         global_S(N, M): The peak time of calcium activity in neuronal cells, a number other than 0 means that the activity of the neuron reaches its peak at this time.
+            S spike 超过阈值会放电，非负浮点数
         global_centers(N ,2): the space location of neural cells
+            细胞的空间位置，id 和前述的 N 对应
         brain_region_id(N ,1): the number of brain regions where neurons are located
+            细胞所在的大脑区域，id 和前述的 N 对应，范围不大的 int，在 30 ~ 100 之间
         brain_region_name(N ,1): the name of brain regions where neurons are located
-
+            细胞所在的大脑区域名字
         *_org: elements before clipping(infer_results_1 and infer_results_2 have different M, above elements use min(M1,M2))
+            一共有两组数据，第二组稍微舍弃了 1% 左右的数据
     '''
 
     def __init__(self):
@@ -46,7 +51,7 @@ class DataLoader:
         print(f"Loading matlab file from {path}")
         mat = scipy.io.loadmat(path)
         return mat
-    
+
     def load_excel(self, path):
         print(f"Loading excel file from {path}")
         dict = pd.read_excel(path)
