@@ -5,8 +5,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 class DataLoader:
-    '''
+    """
     Function:
         Load data from ./dataset
     Note:
@@ -24,30 +25,69 @@ class DataLoader:
             细胞所在的大脑区域名字
         *_org: elements before clipping(infer_results_1 and infer_results_2 have different M, above elements use min(M1,M2))
             一共有两组数据，第二组稍微舍弃了 1% 左右的数据
-    '''
+    """
 
     def __init__(self):
         print("======= Loading data =======")
         dataset_path = os.path.join(sys.path[0], "dataset")
-        self.infer_results_1 = self.load_mat(os.path.join(dataset_path, "infer_results_1.mat"))
-        self.infer_results_2 = self.load_mat(os.path.join(dataset_path, "infer_results_2.mat"))
-        self.infer_results_id_1 = self.load_mat(os.path.join(dataset_path, "infer_results_id_1.mat"))
-        self.infer_results_id_2 = self.load_mat(os.path.join(dataset_path, "infer_results_id_2.mat"))
-        self.brain_region_name_1 = self.load_excel(os.path.join(dataset_path, "Infer results 1/brain_region_name1.xlsx"))
-        self.brain_region_name_2 = self.load_excel(os.path.join(dataset_path, "Infer results 2/brain_region_name2.xlsx"))
+        self.infer_results_1 = self.load_mat(
+            os.path.join(dataset_path, "infer_results_1.mat")
+        )
+        self.infer_results_2 = self.load_mat(
+            os.path.join(dataset_path, "infer_results_2.mat")
+        )
+        self.infer_results_id_1 = self.load_mat(
+            os.path.join(dataset_path, "infer_results_id_1.mat")
+        )
+        self.infer_results_id_2 = self.load_mat(
+            os.path.join(dataset_path, "infer_results_id_2.mat")
+        )
+        self.brain_region_name_1 = self.load_excel(
+            os.path.join(dataset_path, "Infer results 1/brain_region_name1.xlsx")
+        )
+        self.brain_region_name_2 = self.load_excel(
+            os.path.join(dataset_path, "Infer results 2/brain_region_name2.xlsx")
+        )
 
-        cat = lambda x,y:np.concatenate((x,y),axis=0)
-        self.global_C = cat(self.infer_results_1["global_C"], self.infer_results_2["global_C"][:,:14122])
-        self.global_S = cat(self.infer_results_1["global_S"], self.infer_results_2["global_S"][:,:14122])
-        self.global_centers = cat(self.infer_results_1["global_centers"], self.infer_results_2["global_centers"])
-        self.brain_region_id = cat(self.infer_results_id_1["brain_region_id"], self.infer_results_id_2["brain_region_id"])
+        cat = lambda x, y: np.concatenate((x, y), axis=0)
+        self.global_C = cat(
+            self.infer_results_1["global_C"],
+            self.infer_results_2["global_C"][:, :14122],
+        )
+        self.global_S = cat(
+            self.infer_results_1["global_S"],
+            self.infer_results_2["global_S"][:, :14122],
+        )
+        self.global_centers = cat(
+            self.infer_results_1["global_centers"],
+            self.infer_results_2["global_centers"],
+        )
+        self.brain_region_id = cat(
+            self.infer_results_id_1["brain_region_id"],
+            self.infer_results_id_2["brain_region_id"],
+        )
         self.brain_region_name = cat(self.brain_region_name_1, self.brain_region_name_2)
 
-        self.global_C_org = [self.infer_results_1["global_C"], self.infer_results_2["global_C"]]
-        self.global_S_org = [self.infer_results_1["global_S"], self.infer_results_2["global_S"]]
-        self.global_centers_org = [self.infer_results_1["global_centers"], self.infer_results_2["global_centers"]]
-        self.brain_region_id_org = [self.infer_results_id_1["brain_region_id"], self.infer_results_id_2["brain_region_id"]]
-        self.brain_region_name_org = [self.brain_region_name_1, self.brain_region_name_2]
+        self.global_C_org = [
+            self.infer_results_1["global_C"],
+            self.infer_results_2["global_C"],
+        ]
+        self.global_S_org = [
+            self.infer_results_1["global_S"],
+            self.infer_results_2["global_S"],
+        ]
+        self.global_centers_org = [
+            self.infer_results_1["global_centers"],
+            self.infer_results_2["global_centers"],
+        ]
+        self.brain_region_id_org = [
+            self.infer_results_id_1["brain_region_id"],
+            self.infer_results_id_2["brain_region_id"],
+        ]
+        self.brain_region_name_org = [
+            self.brain_region_name_1,
+            self.brain_region_name_2,
+        ]
 
     def load_mat(self, path):
         print(f"Loading matlab file from {path}")
@@ -58,8 +98,10 @@ class DataLoader:
         print(f"Loading excel file from {path}")
         dict = pd.read_excel(path)
         first_element = dict.keys()[0]
-        return np.concatenate((np.array([first_element]).reshape(1,1), np.array(dict)),axis=0)
-    
+        return np.concatenate(
+            (np.array([first_element]).reshape(1, 1), np.array(dict)), axis=0
+        )
+
     def plot_brain_region(self):
         print("======= Neural cells number in different region =======")
         pos = self.global_centers
@@ -70,30 +112,29 @@ class DataLoader:
             print("Region", unique[i], ":", counts[i])
 
         cmap = {
-            20: 'red',
-            26: 'green',
-            67: 'blue',
-            81: 'black',
-            88: 'orange',
-            173: 'purple',
-            187: 'cyan',
-            201: 'yellow',
-            300: 'gray',
-            327: 'brown',
-            348: 'pink',
-            0: 'silver',
-            53: 'gold',
-            95: 'magenta',
-            228: 'navy',
-            334: 'aqua',
-            355: 'fuchsia',
+            20: "red",
+            26: "green",
+            67: "blue",
+            81: "black",
+            88: "orange",
+            173: "purple",
+            187: "cyan",
+            201: "yellow",
+            300: "gray",
+            327: "brown",
+            348: "pink",
+            0: "silver",
+            53: "gold",
+            95: "magenta",
+            228: "navy",
+            334: "aqua",
+            355: "fuchsia",
         }
         colors = [cmap[i] for i in cate[:, 0]]
         x = pos[:, 0]
         y = pos[:, 1]
         plt.scatter(x, y, c=colors, s=5)
         plt.title("Neural cells distribution map")
-        plt.xlabel('X')
-        plt.ylabel('Y')
+        plt.xlabel("X")
+        plt.ylabel("Y")
         plt.show()
-
