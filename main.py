@@ -1,10 +1,9 @@
 from data_prepare.dataloader import DataLoader
-
+from modeling.neuron import Neuron
 
 def main():
-    data = DataLoader()
-    data.plot_brain_region()
-
+    neu = Neuron()
+    neu.plot_region(20)
 
 if __name__ == "__main__":
     main()
