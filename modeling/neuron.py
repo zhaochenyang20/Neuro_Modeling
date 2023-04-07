@@ -37,9 +37,8 @@ class Neuron:
         cate = self.region_id
         unique = np.unique(cate)
 
-        if region_id not in unique:
-            print("wrong region_id")
-            quit()
+        fr_max = np.max([np.max(self.fr_0), np.max(self.fr_1), np.max(self.fr_2)])
+        p_max = np.max([np.max(self.p_0), np.max(self.p_1), np.max(self.p_2)])
 
         cmap = {
             20: 'red',
@@ -73,6 +72,10 @@ class Neuron:
                 plt.ylabel('p')
             plt.show()
         else:
+            if region_id not in unique:
+                print("wrong region_id")
+                quit()
+                
             start = [0, 1000, 7000]
             end = [1000, 7000, self.obs_len]
             for stage in range(0, 3):
@@ -88,9 +91,10 @@ class Neuron:
 
                 plt.subplot(1, 3, stage+1)
                 plt.scatter(fr, p, c=color, s=5)
-                plt.title(f"Stage {stage+1}")
+                plt.title(f"Stage {stage+1} Region id {region_id}")
+                plt.xlim(0, fr_max)
+                plt.ylim(0, p_max)
                 plt.xlabel('fr(num/s)')
                 plt.ylabel('p')
-            plt.title(f"Region id {region_id}")
             plt.show()
 
