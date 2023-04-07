@@ -21,6 +21,7 @@ class DataLoader:
     '''
 
     def __init__(self):
+        print("======= Loading data =======")
         dataset_path = os.path.join(sys.path[0], "dataset")
         self.infer_results_1 = self.load_mat(os.path.join(dataset_path, "infer_results_1.mat"))
         self.infer_results_2 = self.load_mat(os.path.join(dataset_path, "infer_results_2.mat"))
