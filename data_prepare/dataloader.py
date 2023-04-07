@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 
 class DataLoader:
@@ -29,7 +30,7 @@ class DataLoader:
 
     def __init__(self):
         print("======= Loading data =======")
-        dataset_path = os.path.join(sys.path[0], "dataset")
+        dataset_path = str(Path.cwd() / "dataset")
         self.infer_results_1 = self.load_mat(
             os.path.join(dataset_path, "infer_results_1.mat")
         )
