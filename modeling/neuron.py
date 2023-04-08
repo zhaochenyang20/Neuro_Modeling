@@ -37,6 +37,7 @@ class Neuron:
             334: "aqua",
             355: "fuchsia",
         }
+        self.categories = np.unique(self.region_id)
 
     def get_fr(self, start, end):
         if start == end:
@@ -110,3 +111,36 @@ class Neuron:
         ax.set_xlabel("X-axis")
         ax.set_ylabel("Y-axis")
         plt.show()
+
+    def plot_fr_p(self, index=0, **kwargs):
+        category = kwargs.get('category', [])
+        if category != []:
+            selection = np.full(self.region_id.shape, False)
+            selection[np.isin(self.region_id, category)] = True
+            assert selection.any(), "no category with that id"
+        else:
+            selection = np.ones(self.region_id.shape[0], dtype=bool)
+        save_pic = kwargs.get('save_pic', False)
+        fr = self.fr_list[index][selection]
+        p = self.p_list[index][selection]
+        colors = list(np.array([self.cmap[c] for c in self.region_id])[selection])
+        fig, ax = plt.subplots()
+        scatter = ax.scatter(fr, p, c=colors)
+        legend = ax.legend(*scatter.legend_elements(),
+                loc="lower left", title="Categories")
+
+        # set the title and axes labels
+        ax.set_title("Points with Colors")
+        ax.set_xlabel("X-axis")
+        ax.set_ylabel("Y-axis")
+        if not save_pic:
+            plt.show()
+        else:
+            from pathlib import Path
+            pic_root = Path.cwd() / "pics" / "单阶段分区图" / str(index)
+            pic_root.mkdir(parents=True, exist_ok=True)
+            file_path = pic_root / f"fr_p_{''.join(map(str, category))}.png"
+            plt.savefig(file_path)
+            print(f"Created {str(file_path)}")
+
+
