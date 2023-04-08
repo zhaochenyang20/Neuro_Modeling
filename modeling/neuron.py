@@ -18,8 +18,8 @@ class Neuron:
         self.p_0 = self.get_p(0, 1000)
         self.p_1 = self.get_p(1000, 7000)
         self.p_2 = self.get_p(7000, self.obs_len)
-        self.fr_list = [self.fr_0, self.fr_1, self.fr_2]
-        self.p_list = [self.p_0, self.p_1, self.p_2]
+        self.fr_list = np.asarray([self.fr_0, self.fr_1, self.fr_2])
+        self.p_list = np.asarray([self.p_0, self.p_1, self.p_2])
 
     def get_fr(self, start, end):
         if start == end:
@@ -74,7 +74,7 @@ class Neuron:
         else:
             if region_id not in unique:
                 print("wrong region_id")
-                quit()
+                raise ValueError
 
             start = [0, 1000, 7000]
             end = [1000, 7000, self.obs_len]
