@@ -7,11 +7,9 @@ class Neuron:
     def __init__(self):
         self.data = DataLoader()
         self.neuron_num, self.obs_len = self.data.global_C.shape
-
         self.x = self.data.global_centers[:, 0]
         self.y = self.data.global_centers[:, 1]
-        self.region_id = self.data.brain_region_id
-
+        self.region_id = np.ravel(self.data.brain_region_id)
         self.fr_0 = self.get_fr(0, 1000)
         self.fr_1 = self.get_fr(1000, 7000)
         self.fr_2 = self.get_fr(7000, self.obs_len)
@@ -20,27 +18,7 @@ class Neuron:
         self.p_2 = self.get_p(7000, self.obs_len)
         self.fr_list = np.asarray([self.fr_0, self.fr_1, self.fr_2])
         self.p_list = np.asarray([self.p_0, self.p_1, self.p_2])
-
-    def get_fr(self, start, end):
-        if start == end:
-            return 0.0
-        interval_len = (end - start + 1) * 0.1
-        spike_num = np.count_nonzero(self.data.global_S[:, start:end], axis=1)
-        f_r = spike_num / interval_len
-        return f_r
-
-    def get_p(self, start, end):
-        p = np.sum(self.data.global_S[:, start:end], axis=1)
-        return p
-
-    def plot_region(self, region_id=-1):
-        cate = self.region_id
-        unique = np.unique(cate)
-
-        fr_max = np.max([np.max(self.fr_0), np.max(self.fr_1), np.max(self.fr_2)])
-        p_max = np.max([np.max(self.p_0), np.max(self.p_1), np.max(self.p_2)])
-
-        cmap = {
+        self.cmap = {
             20: "red",
             26: "green",
             67: "blue",
@@ -59,7 +37,29 @@ class Neuron:
             334: "aqua",
             355: "fuchsia",
         }
-        colors = [cmap[i] for i in cate[:, 0]]
+
+    def get_fr(self, start, end):
+        if start == end:
+            return 0.0
+        interval_len = (end - start + 1) * 0.1
+        spike_num = np.count_nonzero(self.data.global_S[:, start:end], axis=1)
+        f_r = spike_num / interval_len
+        return f_r
+
+    def get_p(self, start, end):
+        p = np.sum(self.data.global_S[:, start:end], axis=1)
+        return p
+
+
+    def plot_region(self, region_id=-1):
+        cate = self.region_id
+        unique = np.unique(cate)
+
+        fr_max = np.max([np.max(self.fr_0), np.max(self.fr_1), np.max(self.fr_2)])
+        p_max = np.max([np.max(self.p_0), np.max(self.p_1), np.max(self.p_2)])
+
+
+        colors = [self.cmap[i] for i in cate[:, 0]]
 
         if region_id == -1:
             for stage in range(0, 3):
@@ -87,7 +87,7 @@ class Neuron:
 
                 fr = fr[index]
                 p = p[index]
-                color = cmap[region_id]
+                color = self.cmap[region_id]
 
                 plt.subplot(1, 3, stage + 1)
                 plt.scatter(fr, p, c=color, s=5)
@@ -97,3 +97,16 @@ class Neuron:
                 plt.xlabel("fr(num/s)")
                 plt.ylabel("p")
             plt.show()
+
+    def plot_brain_regions(self):
+        colors = [self.cmap[c] for c in self.region_id]
+        fig, ax = plt.subplots()
+        scatter = ax.scatter(self.x, self.y, c=colors)
+        legend = ax.legend(*scatter.legend_elements(),
+                   loc="lower left", title="Categories")
+
+        # set the title and axes labels
+        ax.set_title("Points with Colors")
+        ax.set_xlabel("X-axis")
+        ax.set_ylabel("Y-axis")
+        plt.show()
