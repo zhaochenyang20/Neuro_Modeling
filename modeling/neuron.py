@@ -18,6 +18,9 @@ class Neuron:
         self.p_0 = self.get_p(0, 1000)
         self.p_1 = self.get_p(1000, 7000)
         self.p_2 = self.get_p(7000, self.obs_len)
+        self.c_0 = self.get_c(0, 1000)
+        self.c_1 = self.get_c(1000, 7000)
+        self.c_2 = self.get_c(7000, self.obs_len)
         self.fr_list = np.asarray([self.fr_0, self.fr_1, self.fr_2])
         self.p_list = np.asarray([self.p_0, self.p_1, self.p_2])
         self.cmap = {
@@ -51,8 +54,20 @@ class Neuron:
         return f_r
 
     def get_p(self, start, end):
-        p = np.sum(self.data.global_S[:, start:end], axis=1)
+        if start == end:
+            return 0.0
+        interval_len = (end - start + 1) * 0.1
+        p_sum = np.sum(self.data.global_S[:, start:end], axis=1)
+        p = p_sum / interval_len
         return p
+    
+    def get_c(self, start, end):
+        if start == end:
+            return 0.0
+        interval_len = (end - start + 1) * 0.1
+        c_sum = np.sum(self.data.global_C[:, start:end], axis=1)
+        c = c_sum / interval_len
+        return c
 
     def plot_brain_regions(self):
         colors = [self.cmap[c] for c in self.region_id]
@@ -82,6 +97,9 @@ class Neuron:
             1, 3, figsize=(10, 5)
         )  # create a figure with three subplots
 
+        fr_max = max(np.max(self.fr_0),np.max(self.fr_1),np.max(self.fr_2))
+        p_max = max(np.max(self.p_0),np.max(self.p_1),np.max(self.p_2))
+        print(fr_max, p_max)
         for i, index in enumerate(
             indices
         ):  # iterate over the three indices and plot each subplot
@@ -90,8 +108,10 @@ class Neuron:
             colors = list(np.array([self.cmap[c] for c in self.region_id])[selection])
             scatter = axs[i].scatter(fr, p, c=colors)
             axs[i].set_title(f"Index {index}")  # set the subplot title
-            axs[i].set_xlabel("X-axis")
-            axs[i].set_ylabel("Y-axis")
+            axs[i].set_xlabel("fr-axis")
+            axs[i].set_ylabel("p-axis")
+            axs[i].set_xlim(0, fr_max)
+            axs[i].set_ylim(0, p_max)
             if i == 0:  # only show the legend for the first subplot
                 legend = axs[i].legend(
                     *scatter.legend_elements(), loc="lower left", title="Categories"
