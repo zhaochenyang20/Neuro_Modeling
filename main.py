@@ -14,7 +14,7 @@ def main():
         np.save(str(neu_store_path), neu)
     else:
         neu = np.load(str(neu_store_path), allow_pickle=True).item()
-    neu.plot_region(201)
+    neu.plot_region()
 
 
 if __name__ == "__main__":
