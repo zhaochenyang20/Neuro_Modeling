@@ -74,7 +74,7 @@ class Neuron:
         else:
             if region_id not in unique:
                 print("wrong region_id")
-                raise ValueError
+                quit()
 
             start = [0, 1000, 7000]
             end = [1000, 7000, self.obs_len]

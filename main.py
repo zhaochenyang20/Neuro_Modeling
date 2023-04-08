@@ -1,6 +1,7 @@
 from modeling.neuron import Neuron
 import numpy as np
 from pathlib import Path
+
 HOME = Path.cwd()
 
 
