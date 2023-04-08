@@ -14,6 +14,6 @@ labels = kmeans.labels_
 centroids = kmeans.cluster_centers_
 
 # Plot the data points with different colors for each cluster
-plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='rainbow')
-plt.scatter(centroids[:, 0], centroids[:, 1], marker='*', s=300, c='black')
+plt.scatter(data[:, 0], data[:, 1], c=labels, cmap="rainbow")
+plt.scatter(centroids[:, 0], centroids[:, 1], marker="*", s=300, c="black")
 plt.show()

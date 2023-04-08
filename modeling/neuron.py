@@ -1,6 +1,8 @@
+
 from data_prepare.dataloader import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
+from typing import List
 
 
 class Neuron:
@@ -30,6 +32,7 @@ class Neuron:
             300: "gray",
             327: "brown",
             348: "pink",
+            #! 稀疏点
             0: "silver",
             53: "gold",
             95: "magenta",
@@ -51,60 +54,13 @@ class Neuron:
         p = np.sum(self.data.global_S[:, start:end], axis=1)
         return p
 
-
-    def plot_region(self, region_id=-1):
-        cate = self.region_id
-        unique = np.unique(cate)
-
-        fr_max = np.max([np.max(self.fr_0), np.max(self.fr_1), np.max(self.fr_2)])
-        p_max = np.max([np.max(self.p_0), np.max(self.p_1), np.max(self.p_2)])
-
-
-        colors = [self.cmap[i] for i in cate[:, 0]]
-
-        if region_id == -1:
-            for stage in range(0, 3):
-                fr = self.fr_list[stage]
-                p = self.p_list[stage]
-                plt.subplot(1, 3, stage + 1)
-                plt.scatter(fr, p, c=colors, s=5)
-                plt.title(f"Stage {stage+1}")
-                plt.xlabel("fr(num/s)")
-                plt.ylabel("p")
-            plt.show()
-        else:
-            if region_id not in unique:
-                print("wrong region_id")
-                quit()
-
-            start = [0, 1000, 7000]
-            end = [1000, 7000, self.obs_len]
-            for stage in range(0, 3):
-                fr = self.fr_list[stage]
-                p = self.p_list[stage]
-
-                id = self.region_id[start[stage] : end[stage]] == region_id
-                index = np.where(id)[0]
-
-                fr = fr[index]
-                p = p[index]
-                color = self.cmap[region_id]
-
-                plt.subplot(1, 3, stage + 1)
-                plt.scatter(fr, p, c=color, s=5)
-                plt.title(f"Stage {stage+1} Region id {region_id}")
-                plt.xlim(0, fr_max)
-                plt.ylim(0, p_max)
-                plt.xlabel("fr(num/s)")
-                plt.ylabel("p")
-            plt.show()
-
     def plot_brain_regions(self):
         colors = [self.cmap[c] for c in self.region_id]
         fig, ax = plt.subplots()
         scatter = ax.scatter(self.x, self.y, c=colors)
-        legend = ax.legend(*scatter.legend_elements(),
-                   loc="lower left", title="Categories")
+        legend = ax.legend(
+            *scatter.legend_elements(), loc="lower left", title="Categories"
+        )
 
         # set the title and axes labels
         ax.set_title("Points with Colors")
@@ -112,35 +68,96 @@ class Neuron:
         ax.set_ylabel("Y-axis")
         plt.show()
 
-    def plot_fr_p(self, index=0, **kwargs):
-        category = kwargs.get('category', [])
+    def plot_fr_p(self, indices=[0, 1, 2], **kwargs):
+        category = kwargs.get("category", [])
         if category != []:
             selection = np.full(self.region_id.shape, False)
             selection[np.isin(self.region_id, category)] = True
             assert selection.any(), "no category with that id"
         else:
             selection = np.ones(self.region_id.shape[0], dtype=bool)
-        save_pic = kwargs.get('save_pic', False)
-        fr = self.fr_list[index][selection]
-        p = self.p_list[index][selection]
-        colors = list(np.array([self.cmap[c] for c in self.region_id])[selection])
-        fig, ax = plt.subplots()
-        scatter = ax.scatter(fr, p, c=colors)
-        legend = ax.legend(*scatter.legend_elements(),
-                loc="lower left", title="Categories")
+        save_pic = kwargs.get("save_pic", False)
 
-        # set the title and axes labels
-        ax.set_title("Points with Colors")
-        ax.set_xlabel("X-axis")
-        ax.set_ylabel("Y-axis")
+        fig, axs = plt.subplots(
+            1, 3, figsize=(10, 5)
+        )  # create a figure with three subplots
+
+        for i, index in enumerate(
+            indices
+        ):  # iterate over the three indices and plot each subplot
+            fr = self.fr_list[index][selection]
+            p = self.p_list[index][selection]
+            colors = list(np.array([self.cmap[c] for c in self.region_id])[selection])
+            scatter = axs[i].scatter(fr, p, c=colors)
+            axs[i].set_title(f"Index {index}")  # set the subplot title
+            axs[i].set_xlabel("X-axis")
+            axs[i].set_ylabel("Y-axis")
+            if i == 0:  # only show the legend for the first subplot
+                legend = axs[i].legend(
+                    *scatter.legend_elements(), loc="lower left", title="Categories"
+                )
+
+        fig.suptitle("Points with Colors")  # set the figure title
         if not save_pic:
             plt.show()
         else:
             from pathlib import Path
-            pic_root = Path.cwd() / "pics" / "单阶段分区图" / str(index)
+            pic_root = Path.cwd() / "pics" / "三阶段分区图"
             pic_root.mkdir(parents=True, exist_ok=True)
             file_path = pic_root / f"fr_p_{''.join(map(str, category))}.png"
             plt.savefig(file_path)
             print(f"Created {str(file_path)}")
 
 
+    def plot_spikes_time_series(
+        self, region_ids: List = [], stage_idx: int = -1, **kwargs
+    ):
+        """Plot the time series of spikes of neurons in stage(s).
+
+        Args:
+            save_pic (bool, optional): Save the picture or not. Defaults to False.
+        """
+        if region_ids == []:
+            region_ids = self.categories
+        save_pic = kwargs.get("save_pic", False)
+
+        stages = {
+            -1: (0, self.obs_len),
+            0: (0, 1000),
+            1: (1000, 7000),
+            2: (7000, self.obs_len),
+        }
+
+        # select by region_ids
+
+        fig, ax = plt.subplots(figsize=(20, 6))
+        for region_id in region_ids:
+            selection = self.region_id == region_id
+            spikes = np.sum(
+                self.data.global_S[
+                    selection, stages[stage_idx][0] : stages[stage_idx][1]
+                ],
+                axis=0,
+            )
+            ax.plot(
+                np.arange(spikes.shape[0]) * 0.1,
+                spikes,
+                c=self.cmap[region_id],
+                label=f"Region {region_id}",
+                alpha=0.5,
+            )
+        ax.set_title(
+            f"Spikes Time Series of Neurons\nin Regions {region_ids if region_ids != [] else 'All'}\n\
+            across {f'Stage {stage_idx+1}' if stage_idx != -1 else 'All Stages'}"
+        )
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("Spikes")
+        if not save_pic:
+            fig.show()
+        else:
+            from pathlib import Path
+            pic_root = Path.cwd() / "pics" / "时区图"
+            pic_root.mkdir(parents=True, exist_ok=True)
+            file_path = pic_root / f"times_{''.join(map(str, region_ids))}.png"
+            plt.savefig(file_path)
+            print(f"Created {str(file_path)}")
