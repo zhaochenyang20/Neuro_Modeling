@@ -5,6 +5,7 @@ from typing import List
 from sklearn.metrics.pairwise import cosine_similarity
 from pathlib import Path
 import os
+from sklearn.metrics.pairwise import cosine_similarity
 
 class Neuron:
     def __init__(self):
@@ -30,6 +31,9 @@ class Neuron:
         self.first_stage_list = np.asarray([self.fr_0, self.p_0, self.c_0]).transpose()
         self.total_list = np.concatenate((self.fr_list, self.p_list, self.c_list),axis=1)
         self.categories = np.unique(self.region_id)
+        self.first_stage_list = np.asarray([self.fr_0, self.p_0, self.c_0]).transpose()
+        self.total_list = np.concatenate((self.fr_list, self.p_list, self.c_list),axis=1)
+        self.categories = np.unique(self.region_id)
         self.cmap = {
             20: "red",
             26: "green",
@@ -50,6 +54,18 @@ class Neuron:
             334: "aqua",
             355: "fuchsia",
         }
+
+        self.vec_9d = np.zeros((self.categories.shape[0], 9)) #(17, 9)
+        self.vec_3d = np.zeros((self.categories.shape[0], 3)) #(17, 3)
+        for i, cate in enumerate(self.categories):
+            index = np.where(cate == self.region_id)[0]
+            total_list_cate = self.total_list[index,:]
+            first_stage_cate = self.first_stage_list[index,:]
+            self.vec_9d[i,:] = np.average(total_list_cate, axis=0)
+            self.vec_3d[i,:] = np.average(first_stage_cate, axis=0)
+
+        self.cos_sim_9d = cosine_similarity(self.vec_9d)
+        self.cos_sim_3d = cosine_similarity(self.vec_3d)
 
         self.vec_9d = np.zeros((self.categories.shape[0], 9)) #(17, 9)
         self.vec_3d = np.zeros((self.categories.shape[0], 3)) #(17, 3)
