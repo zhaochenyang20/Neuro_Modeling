@@ -30,10 +30,10 @@ def cluster_2d(data):
     plt.scatter(centroids[:, 0], centroids[:, 1], marker='*', s=300, c='black')
     plt.show()
 
-def plot_fr_p():
+def plot_fr_p_c():
     for i in neu.categories:
-        neu.plot_fr_p(category=[int(i)], save_pic=True)
-    neu.plot_fr_p(category=[], save_pic=True)
+        neu.plot_fr_p_c(indices=[1, 2], category=[int(i)], save_pic=True)
+    neu.plot_fr_p_c(indices=[1, 2], category=[], save_pic=True)
 
 def plot_3d_3_field():
     for type, category in product(["fr", "p", "c"], neu.categories):
@@ -58,4 +58,4 @@ def cluster_3d(data, n_clusters=11):
 
 
 if __name__ == "__main__":
-    cluster_3d(neu.p_list)
+    plot_fr_p_c()
