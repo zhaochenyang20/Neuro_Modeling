@@ -41,7 +41,7 @@ def plot_3d_3_field():
     for type in ["fr", "p", "c"]:
         neu.plot_self_3d(type, category=[], save_pic=True)
 
-def cluster_3d(data, n_clusters):
+def cluster_3d(data, n_clusters=11):
     assert data.shape[1] == 3
     kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(data)
     fig = plt.figure()
@@ -58,4 +58,4 @@ def cluster_3d(data, n_clusters):
 
 
 if __name__ == "__main__":
-    plot_3d_3_field()
+    cluster_3d(neu.p_list)
