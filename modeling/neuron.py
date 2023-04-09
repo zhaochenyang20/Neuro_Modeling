@@ -77,27 +77,30 @@ class Neuron:
         region_data = {}
         for region_id in self.categories:
             selection = (self.region_id == region_id)
-            region_data[region_id] = self.data.global_S[selection]
+            region_data[region_id] = data[selection]
         return region_data
 
-    def plot_brain_regions(self, region_ids = None, *args, **kwargs):
-        if region_ids == None:
+    def plot_brain_regions(self, region_ids = None, title = None ,*args, **kwargs):
+        if region_ids:
+            region_poses = self.devide_by_regions(self.data.global_centers)
+            for region_id in region_ids:
+                region_pos = region_poses[region_id]
+                x = region_pos[:, 0]
+                y = region_pos[:, 1]
+                plt.scatter(x, y, c=self.cmap[region_id], label=region_id)
+        else:
             colors = [self.cmap[c] for c in self.region_id]
             fig, ax = plt.subplots()
             scatter = ax.scatter(self.x, self.y, c=colors)
             legend = ax.legend(
                 *scatter.legend_elements(), loc="lower left", title="Categories"
             )
-        else:
-            region_poses = devide_by_regions(self.data.global_centers)
-            for region_id in region_ids:
-                region_pos = region_poses[region_id]
-                x = region_pos[:, 0]
-                y = region_pos[:, 1]
-                plt.scatter(x, y, c=self.cmap[region_id], label=region_id)
                 
         # set the title and axes labels
-        ax.set_title(f"Neurons in {f'Region {region_ids}' if region_ids != None else 'All Regions'}")
+        if title:
+            ax.set_title(title)
+        else:
+            ax.set_title(f"Neurons in {f'Region {region_ids}' if region_ids != None else 'All Regions'}")
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         plt.show()
