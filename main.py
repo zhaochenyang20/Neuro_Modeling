@@ -58,4 +58,5 @@ def cluster_3d(data, n_clusters=11):
 
 
 if __name__ == "__main__":
-    plot_fr_p_c()
+    # plot_fr_p_c()
+    pass

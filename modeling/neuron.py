@@ -2,6 +2,9 @@ from data_prepare.dataloader import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import List
+from sklearn.metrics.pairwise import cosine_similarity
+from pathlib import Path
+import os
 
 class Neuron:
     def __init__(self):
@@ -9,6 +12,8 @@ class Neuron:
         self.neuron_num, self.obs_len = self.data.global_C.shape
         self.x = self.data.global_centers[:, 0]
         self.y = self.data.global_centers[:, 1]
+        self.xlim = (np.min(self.x), np.max(self.x))
+        self.ylim = (np.min(self.y), np.max(self.y))
         self.region_id = np.ravel(self.data.brain_region_id)
         self.fr_0 = self.get_fr(0, 1000)
         self.fr_1 = self.get_fr(1000, 7000)
@@ -22,6 +27,9 @@ class Neuron:
         self.fr_list = np.asarray([self.fr_0, self.fr_1, self.fr_2]).transpose()
         self.p_list = np.asarray([self.p_0, self.p_1, self.p_2]).transpose()
         self.c_list = np.asarray([self.c_0, self.c_1, self.c_2]).transpose()
+        self.first_stage_list = np.asarray([self.fr_0, self.p_0, self.c_0]).transpose()
+        self.total_list = np.concatenate((self.fr_list, self.p_list, self.c_list),axis=1)
+        self.categories = np.unique(self.region_id)
         self.cmap = {
             20: "red",
             26: "green",
@@ -42,7 +50,18 @@ class Neuron:
             334: "aqua",
             355: "fuchsia",
         }
-        self.categories = np.unique(self.region_id)
+
+        self.vec_9d = np.zeros((self.categories.shape[0], 9)) #(17, 9)
+        self.vec_3d = np.zeros((self.categories.shape[0], 3)) #(17, 3)
+        for i, cate in enumerate(self.categories):
+            index = np.where(cate == self.region_id)[0]
+            total_list_cate = self.total_list[index,:]
+            first_stage_cate = self.first_stage_list[index,:]
+            self.vec_9d[i,:] = np.average(total_list_cate, axis=0)
+            self.vec_3d[i,:] = np.average(first_stage_cate, axis=0)
+
+        self.cos_sim_9d = cosine_similarity(self.vec_9d)
+        self.cos_sim_3d = cosine_similarity(self.vec_3d)
 
     def get_fr(self, start, end):
         if start == end:
@@ -80,31 +99,38 @@ class Neuron:
         return region_data
 
     def plot_brain_regions(self, region_ids=None, title=None, *args, **kwargs):
-        if region_ids:
-            region_poses = self.devide_by_regions(self.data.global_centers)
-            for region_id in region_ids:
-                region_pos = region_poses[region_id]
-                x = region_pos[:, 0]
-                y = region_pos[:, 1]
-                plt.scatter(x, y, c=self.cmap[region_id], label=region_id)
-        else:
-            colors = [self.cmap[c] for c in self.region_id]
-            fig, ax = plt.subplots()
-            scatter = ax.scatter(self.x, self.y, c=colors)
-            legend = ax.legend(
-                *scatter.legend_elements(), loc="lower left", title="Categories"
-            )
+        save_pic = kwargs.get("save_pic", False)
+        save_path = kwargs.get("save_path", None)
+        
+        fig, ax = plt.subplots()
+        scatter_args = {"alpha": 1, "s": 6}
+        ax.set_xlim(self.xlim)
+        ax.set_ylim(self.ylim)
+        if region_ids == None:
+            region_ids = self.categories
+        region_poses = self.devide_by_regions(self.data.global_centers)
+        for region_id in region_ids:
+            region_pos = region_poses[region_id]
+            x = region_pos[:, 0]
+            y = region_pos[:, 1]
+            ax.scatter(x, y, c=self.cmap[region_id], label=str(int(region_id)), **scatter_args)
+
 
         # set the title and axes labels
-        if title:
-            ax.set_title(title)
-        else:
-            ax.set_title(
-                f"Neurons in {f'Region {region_ids}' if region_ids != None else 'All Regions'}"
-            )
+        if not title:
+            title = f"Neurons in {f'Region {region_ids}' if len(region_ids) < len(self.categories) else 'All Regions'}"
+        ax.set_title(title)
         ax.set_xlabel("x")
         ax.set_ylabel("y")
-        plt.show()
+        ax.legend()
+        fig.tight_layout()
+        fig.show()
+        if save_pic:
+            if save_path:
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                fig.savefig(save_path)
+            else:
+                fig.savefig(f"./{title.lower().replace(' ', '-')}.png")
 
     def plot_self_3d(self, type, **kwargs):
         assert type in ["fr", "p", "c"]
