@@ -20,8 +20,9 @@ class Neuron:
         self.c_0 = self.get_c(0, 1000)
         self.c_1 = self.get_c(1000, 7000)
         self.c_2 = self.get_c(7000, self.obs_len)
-        self.fr_list = np.asarray([self.fr_0, self.fr_1, self.fr_2])
-        self.p_list = np.asarray([self.p_0, self.p_1, self.p_2])
+        self.fr_list = np.asarray([self.fr_0, self.fr_1, self.fr_2]).transpose()
+        self.p_list = np.asarray([self.p_0, self.p_1, self.p_2]).transpose()
+        self.c_list = np.asarray([self.c_0, self.c_1, self.c_2]).transpose()
         self.cmap = {
             20: "red",
             26: "green",
@@ -81,6 +82,46 @@ class Neuron:
         ax.set_xlabel("X-axis")
         ax.set_ylabel("Y-axis")
         plt.show()
+
+    def plot_self_3d(self, type, **kwargs):
+        assert type in ["fr", "p", "c"]
+        category = kwargs.get("category", [])
+        if category != []:
+            selection = np.full(self.region_id.shape, False)
+            selection[np.isin(self.region_id, category)] = True
+            assert selection.any(), "no category with that id"
+        else:
+            selection = np.ones(self.region_id.shape[0], dtype=bool)
+        save_pic = kwargs.get("save_pic", False)
+        if type == "p":
+            points = self.p_list[selection]
+        elif type == "fr":
+            points = self.fr_list[selection]
+        else:
+            points = self.c_list[selection]
+        max_value = np.max(points)
+        points = points / max_value # scale all points to the same maximum value
+        colors = list(np.array([self.cmap[c] for c in self.region_id])[selection])
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=colors)
+        ax.set_title(f'{type}')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        if not save_pic:
+            plt.show()
+        else:
+            from pathlib import Path
+
+            pic_root = Path.cwd() / "pics" / f"三维分布图/{type}"
+            pic_root.mkdir(parents=True, exist_ok=True)
+            file_path = pic_root / f"{type}_{''.join(map(str, category))}.png"
+            if category == []:
+                file_path = pic_root / f"{type}_all.png"
+            plt.savefig(file_path)
+            plt.close(fig) # close figure after saving it
+            print(f"Created {str(file_path)}")
 
     def plot_fr_p(self, indices=[0, 1, 2], **kwargs):
         category = kwargs.get("category", [])
