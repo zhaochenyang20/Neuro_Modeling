@@ -53,12 +53,16 @@ class Neuron:
         f_r = spike_num / interval_len
         return f_r
 
-    def get_p(self, start, end):
+    def get_p(self,start, end, region_id = -1):
         if start == end:
             return 0.0
-        interval_len = (end - start + 1) * 0.1
-        p_sum = np.sum(self.data.global_S[:, start:end], axis=1)
-        p = p_sum / interval_len
+    
+        if region_id == -1:
+            p_sum = np.sum(self.data.global_S[:, start:end], axis=1)
+            
+            interval_len = (end - start + 1) * 0.1
+            p = p_sum / interval_len
+            
         return p
 
     def get_c(self, start, end):
@@ -69,18 +73,33 @@ class Neuron:
         c = c_sum / interval_len
         return c
 
-    def plot_brain_regions(self):
-        colors = [self.cmap[c] for c in self.region_id]
-        fig, ax = plt.subplots()
-        scatter = ax.scatter(self.x, self.y, c=colors)
-        legend = ax.legend(
-            *scatter.legend_elements(), loc="lower left", title="Categories"
-        )
+    def devide_by_regions(self, data):
+        region_data = {}
+        for region_id in self.categories:
+            selection = (self.region_id == region_id)
+            region_data[region_id] = self.data.global_S[selection]
+        return region_data
 
+    def plot_brain_regions(self, region_ids = None, *args, **kwargs):
+        if region_ids == None:
+            colors = [self.cmap[c] for c in self.region_id]
+            fig, ax = plt.subplots()
+            scatter = ax.scatter(self.x, self.y, c=colors)
+            legend = ax.legend(
+                *scatter.legend_elements(), loc="lower left", title="Categories"
+            )
+        else:
+            region_poses = devide_by_regions(self.data.global_centers)
+            for region_id in region_ids:
+                region_pos = region_poses[region_id]
+                x = region_pos[:, 0]
+                y = region_pos[:, 1]
+                plt.scatter(x, y, c=self.cmap[region_id], label=region_id)
+                
         # set the title and axes labels
-        ax.set_title("Points with Colors")
-        ax.set_xlabel("X-axis")
-        ax.set_ylabel("Y-axis")
+        ax.set_title(f"Neurons in {f'Region {region_ids}' if region_ids != None else 'All Regions'}")
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
         plt.show()
 
     def plot_self_3d(self, type, **kwargs):
