@@ -1,4 +1,3 @@
-
 from data_prepare.dataloader import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
@@ -60,7 +59,7 @@ class Neuron:
         p_sum = np.sum(self.data.global_S[:, start:end], axis=1)
         p = p_sum / interval_len
         return p
-    
+
     def get_c(self, start, end):
         if start == end:
             return 0.0
@@ -97,8 +96,8 @@ class Neuron:
             1, 3, figsize=(10, 5)
         )  # create a figure with three subplots
 
-        fr_max = max(np.max(self.fr_0),np.max(self.fr_1),np.max(self.fr_2))
-        p_max = max(np.max(self.p_0),np.max(self.p_1),np.max(self.p_2))
+        fr_max = max(np.max(self.fr_0), np.max(self.fr_1), np.max(self.fr_2))
+        p_max = max(np.max(self.p_0), np.max(self.p_1), np.max(self.p_2))
         print(fr_max, p_max)
         for i, index in enumerate(
             indices
@@ -122,12 +121,14 @@ class Neuron:
             plt.show()
         else:
             from pathlib import Path
-            pic_root = Path.cwd() / "pics" / "三阶段分区图"
+
+            pic_root = Path.cwd() / "pics" / "三阶段分区图/avg"
             pic_root.mkdir(parents=True, exist_ok=True)
             file_path = pic_root / f"fr_p_{''.join(map(str, category))}.png"
+            if category == []:
+                file_path = pic_root / f"fr_p_all.png"
             plt.savefig(file_path)
             print(f"Created {str(file_path)}")
-
 
     def plot_spikes_time_series(
         self, region_ids: List = [], stage_idx: int = -1, **kwargs
@@ -176,6 +177,7 @@ class Neuron:
             fig.show()
         else:
             from pathlib import Path
+
             pic_root = Path.cwd() / "pics" / "时区图"
             pic_root.mkdir(parents=True, exist_ok=True)
             file_path = pic_root / f"times_{''.join(map(str, region_ids))}.png"

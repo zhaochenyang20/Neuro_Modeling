@@ -33,7 +33,7 @@
 
 -----
 
-1.  Histaminergic neuron system in the brain: distribution and possible functions
+1. Histaminergic neuron system in the brain: distribution and possible functions
 2. Distribution of orexin neurons in the adult rat brain
 3. Distribution of cholinergic neurons in rat brain: demonstrated by the immunocytochemical localization of choline acetyltransferase
 

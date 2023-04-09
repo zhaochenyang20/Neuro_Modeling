@@ -31,5 +31,10 @@ def cluster_2d(data):
     plt.scatter(centroids[:, 0], centroids[:, 1], marker='*', s=300, c='black')
     plt.show()
 
+def plot_fr_p():
+    for i in neu.categories:
+        neu.plot_fr_p(category=[int(i)], save_pic=True)
+    neu.plot_fr_p(category=[], save_pic=True)
+
 if __name__ == "__main__":
-    cluster_2d(np.asarray([neu.fr_0, neu.p_0]).transpose())
+    plot_fr_p()
