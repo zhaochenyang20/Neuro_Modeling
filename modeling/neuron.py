@@ -139,7 +139,7 @@ class Neuron:
         ax.set_title(title)
         ax.set_xlabel("x")
         ax.set_ylabel("y")
-        ax.legend()
+        ax.legend(loc="upper right")
         fig.tight_layout()
         fig.show()
         if save_pic:
