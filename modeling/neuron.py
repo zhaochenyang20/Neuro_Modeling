@@ -3,9 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import List
 from sklearn.metrics.pairwise import cosine_similarity
-from pathlib import Path
 import os
-from sklearn.metrics.pairwise import cosine_similarity
+
 
 class Neuron:
     def __init__(self):
@@ -29,10 +28,14 @@ class Neuron:
         self.p_list = np.asarray([self.p_0, self.p_1, self.p_2]).transpose()
         self.c_list = np.asarray([self.c_0, self.c_1, self.c_2]).transpose()
         self.first_stage_list = np.asarray([self.fr_0, self.p_0, self.c_0]).transpose()
-        self.total_list = np.concatenate((self.fr_list, self.p_list, self.c_list),axis=1)
+        self.total_list = np.concatenate(
+            (self.fr_list, self.p_list, self.c_list), axis=1
+        )
         self.categories = np.unique(self.region_id)
         self.first_stage_list = np.asarray([self.fr_0, self.p_0, self.c_0]).transpose()
-        self.total_list = np.concatenate((self.fr_list, self.p_list, self.c_list),axis=1)
+        self.total_list = np.concatenate(
+            (self.fr_list, self.p_list, self.c_list), axis=1
+        )
         self.categories = np.unique(self.region_id)
         self.cmap = {
             20: "red",
@@ -55,26 +58,23 @@ class Neuron:
             355: "fuchsia",
         }
 
-        self.vec_9d = np.zeros((self.categories.shape[0], 9)) #(17, 9)
-        self.vec_3d = np.zeros((self.categories.shape[0], 3)) #(17, 3)
+        self.vec_9d = np.zeros((self.categories.shape[0], 9))  # (17, 9)
+        self.vec_3d = np.zeros((self.categories.shape[0], 3))  # (17, 3)
         for i, cate in enumerate(self.categories):
             index = np.where(cate == self.region_id)[0]
-            total_list_cate = self.total_list[index,:]
-            first_stage_cate = self.first_stage_list[index,:]
-            self.vec_9d[i,:] = np.average(total_list_cate, axis=0)
-            self.vec_3d[i,:] = np.average(first_stage_cate, axis=0)
+            total_list_cate = self.total_list[index, :]
+            first_stage_cate = self.first_stage_list[index, :]
+            self.vec_9d[i, :] = np.average(total_list_cate, axis=0)
+            self.vec_3d[i, :] = np.average(first_stage_cate, axis=0)
 
-        self.cos_sim_9d = cosine_similarity(self.vec_9d)
-        self.cos_sim_3d = cosine_similarity(self.vec_3d)
-
-        self.vec_9d = np.zeros((self.categories.shape[0], 9)) #(17, 9)
-        self.vec_3d = np.zeros((self.categories.shape[0], 3)) #(17, 3)
+        self.vec_9d = np.zeros((self.categories.shape[0], 9))  # (17, 9)
+        self.vec_3d = np.zeros((self.categories.shape[0], 3))  # (17, 3)
         for i, cate in enumerate(self.categories):
             index = np.where(cate == self.region_id)[0]
-            total_list_cate = self.total_list[index,:]
-            first_stage_cate = self.first_stage_list[index,:]
-            self.vec_9d[i,:] = np.average(total_list_cate, axis=0)
-            self.vec_3d[i,:] = np.average(first_stage_cate, axis=0)
+            total_list_cate = self.total_list[index, :]
+            first_stage_cate = self.first_stage_list[index, :]
+            self.vec_9d[i, :] = np.average(total_list_cate, axis=0)
+            self.vec_3d[i, :] = np.average(first_stage_cate, axis=0)
 
         self.cos_sim_9d = cosine_similarity(self.vec_9d)
         self.cos_sim_3d = cosine_similarity(self.vec_3d)
@@ -117,7 +117,7 @@ class Neuron:
     def plot_brain_regions(self, region_ids=None, title=None, *args, **kwargs):
         save_pic = kwargs.get("save_pic", False)
         save_path = kwargs.get("save_path", None)
-        
+
         fig, ax = plt.subplots()
         scatter_args = {"alpha": 1, "s": 6}
         ax.set_xlim(self.xlim)
@@ -129,8 +129,9 @@ class Neuron:
             region_pos = region_poses[region_id]
             x = region_pos[:, 0]
             y = region_pos[:, 1]
-            ax.scatter(x, y, c=self.cmap[region_id], label=str(int(region_id)), **scatter_args)
-
+            ax.scatter(
+                x, y, c=self.cmap[region_id], label=str(int(region_id)), **scatter_args
+            )
 
         # set the title and axes labels
         if not title:
@@ -199,7 +200,12 @@ class Neuron:
         save_pic = kwargs.get("save_pic", False)
 
         num_subplots = len(indices)
-        fig, axes = plt.subplots(1, num_subplots, figsize=(5*num_subplots, 5), subplot_kw={"projection": "3d"})
+        fig, axes = plt.subplots(
+            1,
+            num_subplots,
+            figsize=(5 * num_subplots, 5),
+            subplot_kw={"projection": "3d"},
+        )
         if num_subplots == 1:
             axes = [axes]  # Convert the single subplot to a list
 
@@ -214,21 +220,24 @@ class Neuron:
             colors = list(np.array([self.cmap[c] for c in self.region_id])[selection])
             size = 100 * c / c_max
             scatter = axes[i].scatter(fr, p, c=colors, s=size)
-            axes[i].set_title(f"Index {index}")
+            axes[i].set_title(f"stage {index}")
             axes[i].set_xlabel("fr-axis")
             axes[i].set_ylabel("p-axis")
             axes[i].set_xlim(0, fr_max)
             axes[i].set_ylim(0, p_max)
             if i == 0:
-                legend = axes[i].legend(*scatter.legend_elements(), loc="lower left", title="Categories")
+                legend = axes[i].legend(
+                    *scatter.legend_elements(), loc="lower left", title="Categories"
+                )
                 legend.set_zorder(100)
-
-        fig.suptitle("Points with Colors and Sizes")
+        plotname = f"Brain Regin {category[0]}'s f_r, p, c" if category != [] else "All Brain Regions' f_r, p, c"
+        fig.suptitle(plotname)
         if not save_pic:
             plt.show()
         else:
             from pathlib import Path
-            pic_root = Path.cwd() / "pics" / "双阶段分区图"
+
+            pic_root = Path.cwd() / "pics" / "第一阶段分区图"
             pic_root.mkdir(parents=True, exist_ok=True)
             file_path = pic_root / f"fr_p_c_{''.join(map(str, category))}.png"
             if category == []:

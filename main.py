@@ -32,8 +32,8 @@ def cluster_2d(data):
 
 def plot_fr_p_c():
     for i in neu.categories:
-        neu.plot_fr_p_c(indices=[1, 2], category=[int(i)], save_pic=True)
-    neu.plot_fr_p_c(indices=[1, 2], category=[], save_pic=True)
+        neu.plot_fr_p_c(indices=[0], category=[int(i)], save_pic=True)
+    neu.plot_fr_p_c(indices=[0], category=[], save_pic=True)
 
 def plot_3d_3_field():
     for type, category in product(["fr", "p", "c"], neu.categories):
@@ -58,5 +58,5 @@ def cluster_3d(data, n_clusters=11):
 
 
 if __name__ == "__main__":
-    # plot_fr_p_c()
+    plot_fr_p_c()
     pass
