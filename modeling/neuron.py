@@ -114,7 +114,7 @@ class Neuron:
             region_data[region_id] = data[selection]
         return region_data
 
-    def plot_brain_regions(self, region_ids=None, title=None, *args, **kwargs):
+    def plot_brain_regions(self, region_ids=[], labels = [], title=None, *args, **kwargs):
         save_pic = kwargs.get("save_pic", False)
         save_path = kwargs.get("save_path", None)
 
@@ -122,16 +122,16 @@ class Neuron:
         scatter_args = {"alpha": 1, "s": 6}
         ax.set_xlim(self.xlim)
         ax.set_ylim(self.ylim)
-        if region_ids == None:
+        if len(region_ids) == 0:
             region_ids = self.categories
+        if len(labels) == 0:
+            labels = [f"{region_id}" for region_id in region_ids]
         region_poses = self.devide_by_regions(self.data.global_centers)
-        for region_id in region_ids:
+        for region_id, label in zip(region_ids,labels):
             region_pos = region_poses[region_id]
             x = region_pos[:, 0]
             y = region_pos[:, 1]
-            ax.scatter(
-                x, y, c=self.cmap[region_id], label=str(int(region_id)), **scatter_args
-            )
+            ax.scatter(x, y, c=self.cmap[region_id], label=label, **scatter_args)
 
         # set the title and axes labels
         if not title:
