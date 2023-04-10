@@ -156,7 +156,7 @@ class Neuron:
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         ax.set_aspect('equal')
-        ax.legend(bbox_to_anchor=(0, -0.2), loc='upper left')
+        ax.legend(bbox_to_anchor=(-0.15, 1))
         fig.tight_layout()
         fig.show()
         if save_pic:
