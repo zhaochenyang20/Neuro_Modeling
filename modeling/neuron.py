@@ -130,7 +130,7 @@ class Neuron:
             region_data[region_id] = data[selection]
         return region_data
 
-    def plot_brain_regions(self, region_ids=[], labels = [], title=None, *args, **kwargs):
+    def plot_brain_regions(self, region_ids=[], labels=[], title=None, *args, **kwargs):
         save_pic = kwargs.get("save_pic", False)
         save_path = kwargs.get("save_path", None)
 
@@ -143,7 +143,7 @@ class Neuron:
         if len(labels) == 0:
             labels = [f"[{region_id}] {self.region_id2name[region_id]}" for region_id in region_ids]
         region_poses = self.devide_by_regions(self.data.global_centers)
-        for region_id, label in zip(region_ids,labels):
+        for region_id, label in zip(region_ids, labels):
             region_pos = region_poses[region_id]
             x = region_pos[:, 0]
             y = region_pos[:, 1]
@@ -247,7 +247,11 @@ class Neuron:
                     *scatter.legend_elements(), loc="lower left", title="Categories"
                 )
                 legend.set_zorder(100)
-        plotname = f"Brain Regin {category[0]}'s f_r, p, c" if category != [] else "All Brain Regions' f_r, p, c"
+        plotname = (
+            f"Brain Regin {category[0]}'s f_r, p, c"
+            if category != []
+            else "All Brain Regions' f_r, p, c"
+        )
         fig.suptitle(plotname)
         if not save_pic:
             plt.show()
@@ -321,31 +325,35 @@ class Neuron:
         matrix = np.floor(mat)
 
         # create row and column labels
-        row_labels = ['row' + str(i) for i in range(17)]
-        col_labels = ['col' + str(i) for i in range(17)]
+        row_labels = ["" + str(self.categories[i]) for i in range(17)]
+        col_labels = ["" + str(self.categories[i]) for i in range(17)]
 
         # convert column labels to string format
         col_labels_str = [str(label) for label in col_labels]
 
         # convert matrix to latex table format
-        latex_table = '\\begin{tabular}{|c|' + '|'.join(['c']*17) + '|}\n\\hline\n'
-        latex_table += ' & ' + ' & '.join(col_labels_str) + ' \\\\\n\\hline\n'
+        latex_table = "\\begin{tabular}{|c|" + "|".join(["c"] * 17) + "|}\n\\hline\n"
+        latex_table += " & " + " & ".join(col_labels_str) + " \\\\\n\\hline\n"
         for i in range(17):
-            latex_table += row_labels[i] + ' & ' + ' & '.join(['{:.2f}'.format(x) for x in matrix[i]]) + ' \\\\\n'
-        latex_table += '\\hline\n\\end{tabular}'
+            latex_table += (
+                row_labels[i]
+                + " & "
+                + " & ".join([str(int(x)) for x in matrix[i]])
+                + " \\\\\n"
+            )
+        latex_table += "\\hline\n\\end{tabular}"
 
         print(latex_table)
-    
+
     def get_Eculid_dis(self, mat):
         matrix = mat
 
         # 计算每两个类别的特征之间的欧几里得距离
         distances = np.zeros((17, 17))
         for i in range(17):
-            for j in range(i+1, 17):
+            for j in range(i + 1, 17):
                 distances[i][j] = np.linalg.norm(matrix[i] - matrix[j])
                 distances[j][i] = distances[i][j]
 
         # 得到一个(17, 17)大小的矩阵
         return distances
-
