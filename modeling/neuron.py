@@ -15,6 +15,9 @@ class Neuron:
         self.xlim = (np.min(self.x), np.max(self.x))
         self.ylim = (np.min(self.y), np.max(self.y))
         self.region_id = np.ravel(self.data.brain_region_id)
+        self.categories = np.unique(self.region_id)
+        self.region_name = self.data.brain_region_name
+        self.region_id2name = self.get_region_id2name()
         self.fr_0 = self.get_fr(0, 1000)
         self.fr_1 = self.get_fr(1000, 7000)
         self.fr_2 = self.get_fr(7000, self.obs_len)
@@ -31,12 +34,11 @@ class Neuron:
         self.total_list = np.concatenate(
             (self.fr_list, self.p_list, self.c_list), axis=1
         )
-        self.categories = np.unique(self.region_id)
         self.first_stage_list = np.asarray([self.fr_0, self.p_0, self.c_0]).transpose()
         self.total_list = np.concatenate(
             (self.fr_list, self.p_list, self.c_list), axis=1
         )
-        self.categories = np.unique(self.region_id)
+        
         self.cmap = {
             20: "red",
             26: "green",
@@ -81,7 +83,18 @@ class Neuron:
 
         self.get_sim_mat(self.e_sim_9d)
         self.get_sim_mat(self.e_sim_3d)
-
+    def get_region_id2name(self):
+        region_id2name = {}
+        for region_id in self.categories:
+            selection = self.region_id == region_id
+            region_name = np.unique(self.region_name[selection])
+            assert region_name.size == 1
+            if region_name[0] != None:
+                region_id2name[region_id] = region_name[0][:-2]
+            else:
+                region_id2name[region_id] = None
+        self.region_id2name = region_id2name
+        return self.region_id2name
     def get_fr(self, start, end):
         if start == end:
             return 0.0
@@ -121,14 +134,14 @@ class Neuron:
         save_pic = kwargs.get("save_pic", False)
         save_path = kwargs.get("save_path", None)
 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(10, 10))
         scatter_args = {"alpha": 1, "s": 6}
         ax.set_xlim(self.xlim)
         ax.set_ylim(self.ylim)
         if len(region_ids) == 0:
             region_ids = self.categories
         if len(labels) == 0:
-            labels = [f"{region_id}" for region_id in region_ids]
+            labels = [f"[{region_id}] {self.region_id2name[region_id]}" for region_id in region_ids]
         region_poses = self.devide_by_regions(self.data.global_centers)
         for region_id, label in zip(region_ids, labels):
             region_pos = region_poses[region_id]
@@ -142,7 +155,8 @@ class Neuron:
         ax.set_title(title)
         ax.set_xlabel("x")
         ax.set_ylabel("y")
-        ax.legend(loc="upper right")
+        ax.set_aspect('equal')
+        ax.legend(bbox_to_anchor=(0, -0.2), loc='upper left')
         fig.tight_layout()
         fig.show()
         if save_pic:
@@ -308,7 +322,7 @@ class Neuron:
 
     def get_sim_mat(self, mat):
         # create a 17x17 numpy matrix
-        matrix = mat
+        matrix = np.floor(mat)
 
         # create row and column labels
         row_labels = ["" + str(self.categories[i]) for i in range(17)]
