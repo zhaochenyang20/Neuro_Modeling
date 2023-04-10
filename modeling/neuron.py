@@ -304,7 +304,7 @@ class Neuron:
 
     def get_sim_mat(self, mat):
         # create a 17x17 numpy matrix
-        matrix = mat
+        matrix = np.floor(mat)
 
         # create row and column labels
         row_labels = ['row' + str(i) for i in range(17)]
