@@ -15,6 +15,7 @@ if not neu_store_path.exists():
 else:
     neu = np.load(str(neu_store_path), allow_pickle=True).item()
 
+
 def cluster_2d(data):
     assert data.shape[1] == 2
     # Perform clustering with KMeans
@@ -26,14 +27,16 @@ def cluster_2d(data):
     centroids = kmeans.cluster_centers_
 
     # Plot the data points with different colors for each cluster
-    plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='rainbow')
-    plt.scatter(centroids[:, 0], centroids[:, 1], marker='*', s=300, c='black')
+    plt.scatter(data[:, 0], data[:, 1], c=labels, cmap="rainbow")
+    plt.scatter(centroids[:, 0], centroids[:, 1], marker="*", s=300, c="black")
     plt.show()
+
 
 def plot_fr_p_c():
     for i in neu.categories:
         neu.plot_fr_p_c(indices=[0], category=[int(i)], save_pic=True)
     neu.plot_fr_p_c(indices=[0], category=[], save_pic=True)
+
 
 def plot_3d_3_field():
     for type, category in product(["fr", "p", "c"], neu.categories):
@@ -41,22 +44,23 @@ def plot_3d_3_field():
     for type in ["fr", "p", "c"]:
         neu.plot_self_3d(type, category=[], save_pic=True)
 
+
 def cluster_3d(data, n_clusters=11):
     assert data.shape[1] == 3
     kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(data)
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(111, projection="3d")
 
     for i in range(n_clusters):
         cluster_points = data[kmeans.labels_ == i]
         ax.scatter(cluster_points[:, 0], cluster_points[:, 1], cluster_points[:, 2])
 
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
     plt.show()
 
 
 if __name__ == "__main__":
-    plot_fr_p_c()
+    # plot_fr_p_c()
     pass
