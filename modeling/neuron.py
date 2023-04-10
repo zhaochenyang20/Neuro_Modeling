@@ -90,10 +90,10 @@ class Neuron:
             selection = self.region_id == region_id
             region_name = np.unique(self.region_name[selection])
             assert region_name.size == 1
-            if region_name[0] != None:
+            if region_name[-2:] == ' 1':
                 region_id2name[region_id] = region_name[0][:-2]
             else:
-                region_id2name[region_id] = None
+                region_id2name[region_id] = region_name[0]
         self.region_id2name = region_id2name
         return self.region_id2name
 
@@ -160,8 +160,8 @@ class Neuron:
         ax.set_title(title)
         ax.set_xlabel("x")
         ax.set_ylabel("y")
-        ax.set_aspect("equal")
-        ax.legend(bbox_to_anchor=(0, -0.2), loc="upper left")
+        ax.set_aspect('equal')
+        ax.legend(bbox_to_anchor=(-0.15, 1))
         fig.tight_layout()
         fig.show()
         if save_pic:
