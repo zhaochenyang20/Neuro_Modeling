@@ -7,6 +7,7 @@ from itertools import product
 from typing import *
 from pathlib import Path
 from prettytable import PrettyTable, MARKDOWN
+from PIL import Image
 
 HOME = Path.cwd()
 dataset_root = HOME / "dataset"
@@ -70,26 +71,25 @@ def plot_active_regions_by_steps(
         for region_id in neuron.categories
     }
 
-    # pdprint(region_all_mean_spikes[0].shape)
-    # pdprint(region_all_mean_spikes[0][:max_obs_len].shape)
-    # pdprint(region_all_mean_spikes[0][:max_obs_len].reshape(step * 10, -1).shape)
-    # pdtest(region_step_mean_spikes[0].shape, (14,))
+    pdprint(region_all_mean_spikes[0].shape)
+    pdprint(region_all_mean_spikes[0][:max_obs_len].shape)
+    pdprint(region_all_mean_spikes[0][:max_obs_len].reshape(step * 10, -1).shape)
+    pdtest(region_step_mean_spikes[0].shape, (14,))
 
-    # # 各脑区时间步内平均尖峰强度随时间变化的 3D 图像
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111,projection='3d')
-    # for region_idx, region_id in enumerate(neuron.categories):
-    #     # ax.scatter(np.arange(max_step_num) + 0.5, np.repeat(region_idx, max_step_num), c=neuron.cmap[region_id], s = region_step_mean_spikes[region_id]*1000)
-    #     ax.plot(np.arange(max_step_num) + 0.5, np.repeat(region_idx, max_step_num), region_step_mean_spikes[region_id],
-    #             c=neuron.cmap[region_id],label=f"{region_id}")
-    # ax.set_xticks(np.arange(max_step_num))
-    # ax.set_xticklabels(np.arange(max_step_num) * step)
-    # ax.set_xlabel("Time (s)")
-    # ax.set_yticks(np.arange(len(neuron.categories)))
-    # ax.set_yticklabels(neuron.categories)
-    # ax.set_ylabel("Region ID")
-    # ax.set_title(f"{step} s Time Step Mean Spikes of Regions across Time")
-    # fig.show()
+    # 各脑区时间步内平均尖峰强度随时间变化的 3D 图像
+    fig = plt.figure()
+    ax = fig.add_subplot(111,projection='3d')
+    for region_idx, region_id in enumerate(neuron.categories):
+        ax.plot(np.arange(max_step_num) + 0.5, np.repeat(region_idx, max_step_num), region_step_mean_spikes[region_id],
+                c=neuron.cmap[region_id],label=f"{region_id}")
+    ax.set_xticks(np.arange(max_step_num))
+    ax.set_xticklabels(np.arange(max_step_num) * step)
+    ax.set_xlabel("Time (s)")
+    ax.set_yticks(np.arange(len(neuron.categories)))
+    ax.set_yticklabels(neuron.categories)
+    ax.set_ylabel("Region ID")
+    ax.set_title(f"{step} s Time Step Mean Spikes of Regions across Time")
+    fig.show()
 
     # 在每个时间步中，找到活跃区域
     # 将每个区域的平均尖峰强度按照升序排列，取排名前 20% 的区域作为活跃区域
@@ -101,21 +101,16 @@ def plot_active_regions_by_steps(
                 for region_id, mean_spikes in region_step_mean_spikes.items()
             ]
         )
-        # pdprint(region_mean_spikes) # v
         region_activities_descend = np.flip(
             region_activities[region_activities[:, 1].argsort()], axis=0
         )
-        # pdprint(region_ids_mean_spikes_descend)
         region_activities_descend_in_steps.append(region_activities_descend)
-
-    # for step_idx, step_region_activities_descend in enumerate(region_activities_descend_in_steps):
 
     # 根据 active_regions_in_steps 调用 neuron.plot_brain_regions() 绘制活跃区域随时间步变化的图像
     # 每个时间步都调用 neuron.plot_brain_regions() 函数绘制活跃区域随时间步变化的图像
     if save_gif:
         # 如果要保存为 GIF 图像，首先创建一个空的图像路径序列 image_path_sequence
         image_path_sequence = []
-    # pdprint(active_region_ids_in_steps) # x
 
     for step_idx, step_region_activities_descend in enumerate(
         region_activities_descend_in_steps
@@ -136,8 +131,6 @@ def plot_active_regions_by_steps(
                 step_region_activities_descend, row_idxes[:, np.newaxis], axis=0
             )
 
-        # pdprint(region_ids_mean_spikes_descend)
-        # pdprint(step_region_activities) # x
         # 根据时间步长计算时间段的开始和结束时间，用于设置图像标题
         start_time = step_idx * step
         end_time = (step_idx + 1) * step
@@ -265,12 +258,12 @@ def plot_spikes_time_series(
             axis=2,
         )
         region_step_mean_spikes[region_id] = np.mean(neurons_step_mean_spikes, axis=0)
-        # pdtest(region_step_mean_spikes[region_id].size, 14) # v
+        pdtest(region_step_mean_spikes[region_id].size, 14) # v
 
     # visualize
     all_region_mean_spikes = np.array(list(region_step_mean_spikes.values()))
-    # pdprint(all_region_mean_spikes.shape)
-    # pdprint(all_region_mean_spikes)
+    pdprint(all_region_mean_spikes.shape)
+    pdprint(all_region_mean_spikes)
     max_region_mean_spike = np.max(all_region_mean_spikes)
     fig, ax = plt.subplots(figsize=(20, 6))
 

@@ -38,7 +38,7 @@ class Neuron:
         self.total_list = np.concatenate(
             (self.fr_list, self.p_list, self.c_list), axis=1
         )
-        
+
         self.cmap = {
             20: "red",
             26: "green",
@@ -83,6 +83,7 @@ class Neuron:
 
         self.get_sim_mat(self.e_sim_9d)
         self.get_sim_mat(self.e_sim_3d)
+
     def get_region_id2name(self):
         region_id2name = {}
         for region_id in self.categories:
@@ -95,6 +96,7 @@ class Neuron:
                 region_id2name[region_id] = None
         self.region_id2name = region_id2name
         return self.region_id2name
+
     def get_fr(self, start, end):
         if start == end:
             return 0.0
@@ -141,7 +143,10 @@ class Neuron:
         if len(region_ids) == 0:
             region_ids = self.categories
         if len(labels) == 0:
-            labels = [f"[{region_id}] {self.region_id2name[region_id]}" for region_id in region_ids]
+            labels = [
+                f"[{region_id}] {self.region_id2name[region_id]}"
+                for region_id in region_ids
+            ]
         region_poses = self.devide_by_regions(self.data.global_centers)
         for region_id, label in zip(region_ids, labels):
             region_pos = region_poses[region_id]
@@ -155,8 +160,8 @@ class Neuron:
         ax.set_title(title)
         ax.set_xlabel("x")
         ax.set_ylabel("y")
-        ax.set_aspect('equal')
-        ax.legend(bbox_to_anchor=(0, -0.2), loc='upper left')
+        ax.set_aspect("equal")
+        ax.legend(bbox_to_anchor=(0, -0.2), loc="upper left")
         fig.tight_layout()
         fig.show()
         if save_pic:
