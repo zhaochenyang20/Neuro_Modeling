@@ -76,8 +76,11 @@ class Neuron:
             self.vec_9d[i, :] = np.average(total_list_cate, axis=0)
             self.vec_3d[i, :] = np.average(first_stage_cate, axis=0)
 
-        self.cos_sim_9d = cosine_similarity(self.vec_9d)
-        self.cos_sim_3d = cosine_similarity(self.vec_3d)
+        self.e_sim_9d = self.get_Eculid_dis(self.vec_9d)
+        self.e_sim_3d = self.get_Eculid_dis(self.vec_3d)
+
+        self.get_sim_mat(self.e_sim_9d)
+        self.get_sim_mat(self.e_sim_3d)
 
     def get_fr(self, start, end):
         if start == end:
@@ -298,3 +301,37 @@ class Neuron:
             file_path = pic_root / f"times_{''.join(map(str, region_ids))}.png"
             plt.savefig(file_path)
             print(f"Created {str(file_path)}")
+
+    def get_sim_mat(self, mat):
+        # create a 17x17 numpy matrix
+        matrix = mat
+
+        # create row and column labels
+        row_labels = ['row' + str(i) for i in range(17)]
+        col_labels = ['col' + str(i) for i in range(17)]
+
+        # convert column labels to string format
+        col_labels_str = [str(label) for label in col_labels]
+
+        # convert matrix to latex table format
+        latex_table = '\\begin{tabular}{|c|' + '|'.join(['c']*17) + '|}\n\\hline\n'
+        latex_table += ' & ' + ' & '.join(col_labels_str) + ' \\\\\n\\hline\n'
+        for i in range(17):
+            latex_table += row_labels[i] + ' & ' + ' & '.join(['{:.2f}'.format(x) for x in matrix[i]]) + ' \\\\\n'
+        latex_table += '\\hline\n\\end{tabular}'
+
+        print(latex_table)
+    
+    def get_Eculid_dis(self, mat):
+        matrix = mat
+
+        # 计算每两个类别的特征之间的欧几里得距离
+        distances = np.zeros((17, 17))
+        for i in range(17):
+            for j in range(i+1, 17):
+                distances[i][j] = np.linalg.norm(matrix[i] - matrix[j])
+                distances[j][i] = distances[i][j]
+
+        # 得到一个(17, 17)大小的矩阵
+        return distances
+
